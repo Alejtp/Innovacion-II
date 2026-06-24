@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Acceso denegado — Merma Textil Analytics</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0F1117; color: #F0F2FF;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .fabric-top {
+    position: fixed; top: 0; left: 0; right: 0; height: 4px;
+    background: repeating-linear-gradient(90deg,
+      #FF6B2B 0px, #FF6B2B 6px, #7C6FFF 6px, #7C6FFF 12px,
+      #00E5A0 12px, #00E5A0 18px, #FFD166 18px, #FFD166 24px,
+      #1A1D27 24px, #1A1D27 30px);
+    z-index: 999;
+  }
+  .wrap {
+    text-align: center; padding: 32px 24px; max-width: 420px; width: 100%;
+  }
+  .icon-big {
+    font-size: 4rem; margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+  .code {
+    font-size: 5rem; font-weight: 900; line-height: 1;
+    background: linear-gradient(135deg, #FF6B2B, #7C6FFF);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+  h1 { font-size: 1.2rem; font-weight: 700; color: #F0F2FF; margin-bottom: 10px; }
+  p  { font-size: 0.83rem; color: #5A5E7A; line-height: 1.6; margin-bottom: 28px; }
+
+  .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    font-family: inherit; font-size: 0.83rem; font-weight: 700;
+    padding: 10px 20px; border-radius: 10px; cursor: pointer;
+    transition: all 0.15s; text-decoration: none; display: inline-block;
+  }
+  .btn-primary {
+    background: #FF6B2B; color: #fff; border: none;
+  }
+  .btn-primary:hover { background: #e85b1f; }
+  .btn-ghost {
+    background: transparent; color: #7A7EA0;
+    border: 1px solid #2A2D3E;
+  }
+  .btn-ghost:hover { border-color: #7C6FFF; color: #7C6FFF; }
+
+  /* Mini card de info */
+  .info-card {
+    margin-top: 32px;
+    background: #13151F; border: 1px solid #1F2235;
+    border-radius: 14px; padding: 18px 20px; text-align: left;
+  }
+  .info-card p { margin-bottom: 0; font-size: 0.75rem; }
+  .info-card strong { color: #F0F2FF; }
+  .session-info { margin-top: 10px; font-size: 0.72rem; color: #3E4260; }
+  .pill-sm {
+    display: inline-block; font-size: 0.65rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px;
+  }
+  .pill-orange { background: rgba(255,107,43,0.15); color: #FF6B2B; border: 1px solid rgba(255,107,43,0.3); }
+  .pill-violet { background: rgba(124,111,255,0.15); color: #7C6FFF; border: 1px solid rgba(124,111,255,0.3); }
+  .pill-gray   { background: #1A1D27; color: #5A5E7A; border: 1px solid #2A2D3E; }
+</style>
+</head>
+<body>
+<div class="fabric-top"></div>
+
+<div class="wrap">
+  <div class="icon-big" id="pageIcon">🔐</div>
+  <div class="code"   id="pageCode">403</div>
+  <h1 id="pageTitle">Acceso denegado</h1>
+  <p  id="pageDesc">No tienes permiso para ver esta página,<br/>o tu sesión ha expirado.</p>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="goBack()">← Volver</button>
+    <a href="login.html" class="btn btn-ghost">Ir al login</a>
+  </div>
+
+  <div class="info-card" id="sessionCard" style="display:none;">
+    <p>Sesión activa: <strong id="sessionNombre">—</strong>
+       <span id="sessionRolPill" class="pill-sm">—</span>
+    </p>
+    <p class="session-info">Usuario: <span id="sessionUsuario" style="font-family:monospace;color:#5A5E7A;">—</span></p>
+  </div>
+</div>
+
+<script src="mt-core.js"></script>
+<script>
+  // Detectar modo: 404 vs 403
+  const params = new URLSearchParams(window.location.search);
+  const modo   = params.get('tipo') || '403';
+
+  if (modo === '404') {
+    document.getElementById('pageIcon').textContent  = '🔍';
+    document.getElementById('pageCode').textContent  = '404';
+    document.getElementById('pageTitle').textContent = 'Página no encontrada';
+    document.getElementById('pageDesc').textContent  = 'La página que buscas no existe o fue movida.';
+  }
+
+  // Mostrar info de sesión si hay
+  const user = MT.getUser();
+  if (user) {
+    const card = document.getElementById('sessionCard');
+    card.style.display = 'block';
+    document.getElementById('sessionNombre').textContent = user.nombre;
+    document.getElementById('sessionUsuario').textContent = '@' + user.usuario;
+    const pill = document.getElementById('sessionRolPill');
+    pill.textContent = user.rol;
+    pill.classList.add(user.rol === 'admin' ? 'pill-orange' : 'pill-violet');
+  }
+
+  function goBack() {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else if (user) {
+      window.location.href = user.rol === 'admin' ? 'admin.html' : 'empresa.html';
+    } else {
+      window.location.href = 'login.html';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Acceso — Merma Textil Analytics</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0F1117;
+    color: #F0F2FF;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fabric-top {
+    position: fixed; top: 0; left: 0; right: 0; height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      #FF6B2B 0px, #FF6B2B 6px, #7C6FFF 6px, #7C6FFF 12px,
+      #00E5A0 12px, #00E5A0 18px, #FFD166 18px, #FFD166 24px,
+      #1A1D27 24px, #1A1D27 30px
+    );
+    z-index: 999;
+  }
+  .login-wrapper { width: 100%; max-width: 420px; padding: 24px; }
+  .login-card {
+    background: #13151F; border: 1px solid #1F2235;
+    border-radius: 20px; padding: 40px 36px 36px;
+  }
+  .brand { text-align: center; margin-bottom: 32px; }
+  .logo-badge {
+    display: inline-block; background: #FF6B2B; color: #fff;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 12px;
+  }
+  .brand h1 { font-size: 1.4rem; font-weight: 800; color: #F0F2FF; line-height: 1.2; }
+  .brand p  { font-size: 0.78rem; color: #5A5E7A; margin-top: 6px; }
+  .divider  { height: 1px; background: #1F2235; margin: 0 -36px 28px; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: #5A5E7A; margin-bottom: 7px;
+  }
+  .form-group input {
+    width: 100%; background: #0F1117; border: 1px solid #2A2D3E;
+    border-radius: 10px; color: #F0F2FF; font-family: inherit;
+    font-size: 0.9rem; padding: 11px 14px; outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-group input:focus   { border-color: #FF6B2B; }
+  .form-group input::placeholder { color: #3E4260; }
+
+  /* Password toggle */
+  .pass-wrap { position: relative; }
+  .pass-wrap input { padding-right: 42px; }
+  .pass-toggle {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: #5A5E7A;
+    font-size: 1rem; padding: 0; line-height: 1;
+    transition: color 0.15s;
+  }
+  .pass-toggle:hover { color: #FF6B2B; }
+
+  .error-msg {
+    display: none; background: rgba(255,80,80,0.1);
+    border: 1px solid rgba(255,80,80,0.3); color: #FF6B6B;
+    font-size: 0.78rem; border-radius: 8px; padding: 9px 12px;
+    margin-bottom: 18px; text-align: center;
+  }
+  .error-msg.visible { display: block; }
+
+  .btn-login {
+    width: 100%; background: #FF6B2B; color: #fff; border: none;
+    border-radius: 10px; font-family: inherit; font-size: 0.9rem;
+    font-weight: 700; padding: 13px; cursor: pointer;
+    letter-spacing: 0.4px; transition: background 0.15s, transform 0.1s;
+    margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-login:hover   { background: #e85b1f; }
+  .btn-login:active  { transform: scale(0.98); }
+  .btn-login.loading { opacity: 0.7; pointer-events: none; }
+
+  .login-note { text-align: center; margin-top: 22px; font-size: 0.72rem; color: #3E4260; line-height: 1.6; }
+
+  /* Demo hint */
+  .demo-hint {
+    margin-top: 20px; background: #0F1117;
+    border: 1px solid #1F2235; border-radius: 10px; padding: 12px 14px;
+  }
+  .demo-hint p { font-size: 0.68rem; color: #3E4260; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+  .demo-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.73rem; padding: 5px 0; border-bottom: 1px solid #1A1D27;
+  }
+  .demo-row:last-child { border-bottom: none; }
+  .demo-user { color: #7C6FFF; font-family: monospace; font-weight: 700; }
+  .demo-pass { color: #5A5E7A; font-family: monospace; }
+  .demo-role-badge {
+    font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 20px;
+  }
+  .dr-admin   { background: rgba(255,107,43,0.15); color: #FF6B2B; border: 1px solid rgba(255,107,43,0.3); }
+  .dr-empresa { background: rgba(124,111,255,0.15); color: #7C6FFF; border: 1px solid rgba(124,111,255,0.3); }
+  .btn-fill {
+    background: none; border: none; cursor: pointer; color: #3E4260;
+    font-size: 0.68rem; padding: 2px 6px; border-radius: 4px;
+    transition: color 0.12s; font-family: monospace;
+  }
+  .btn-fill:hover { color: #FF6B2B; }
+</style>
+</head>
+<body>
+<div class="fabric-top"></div>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="brand">
+      <div class="logo-badge">Sprint 2</div>
+      <h1>Merma Textil<br/>Analytics</h1>
+      <p>Proyecto de Gestión de Residuos Textiles</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <div class="form-group">
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" placeholder="Ingresa tu usuario" autocomplete="off" autofocus/>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="pass-wrap">
+          <input type="password" id="password" placeholder="••••••••"/>
+          <button type="button" class="pass-toggle" onclick="togglePass()" title="Mostrar/ocultar">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" id="btnLogin">
+        <span id="btnText">Ingresar</span>
+        <span id="btnArrow">→</span>
+      </button>
+    </form>
+
+    <!-- Demo credentials hint -->
+    <div class="demo-hint">
+      <p>🔑 Datos de prueba</p>
+      <div class="demo-row">
+        <span class="demo-user">admin</span>
+        <span class="demo-pass">admin123</span>
+        <span class="demo-role-badge dr-admin">admin</span>
+        <button class="btn-fill" onclick="fill('admin','admin123')" title="Usar">↗</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-user">empresa1</span>
+        <span class="demo-pass">emp123</span>
+        <span class="demo-role-badge dr-empresa">empresa</span>
+        <button class="btn-fill" onclick="fill('empresa1','emp123')" title="Usar">↗</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-user">empresa2</span>
+        <span class="demo-pass">emp456</span>
+        <span class="demo-role-badge dr-empresa">empresa</span>
+        <button class="btn-fill" onclick="fill('empresa2','emp456')" title="Usar">↗</button>
+      </div>
+      <div class="demo-row">
+        <span class="demo-user">empresa3</span>
+        <span class="demo-pass">emp789</span>
+        <span class="demo-role-badge dr-empresa">empresa</span>
+        <button class="btn-fill" onclick="fill('empresa3','emp789')" title="Usar">↗</button>
+      </div>
+    </div>
+
+    <p class="login-note">Sistema interno · Solo acceso autorizado</p>
+  </div>
+</div>
+
+<script src="mt-core.js"></script>
+<script>
+  // Si ya hay sesión activa, redirigir directamente
+  (function() {
+    const user = MT.getUser();
+    if (user) {
+      window.location.href = user.rol === 'admin' ? 'admin.html' : 'empresa.html';
+    }
+  })();
+
+  function togglePass() {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function fill(u, p) {
+    document.getElementById('usuario').value  = u;
+    document.getElementById('password').value = p;
+    document.getElementById('password').focus();
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    const usuario  = document.getElementById('usuario').value.trim();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMsg');
+    const btn      = document.getElementById('btnLogin');
+    const btnText  = document.getElementById('btnText');
+    const btnArrow = document.getElementById('btnArrow');
+
+    if (!usuario || !password) {
+      errorMsg.textContent = 'Completa todos los campos.';
+      errorMsg.classList.add('visible');
+      return false;
+    }
+
+    // Simular loading
+    btn.classList.add('loading');
+    btnText.textContent = 'Verificando...';
+    btnArrow.textContent = '⏳';
+
+    // [TODO-API] Reemplazar por fetch POST /api/auth/login
+    setTimeout(() => {
+      const result = MT.login(usuario, password);
+
+      if (!result.ok) {
+        errorMsg.textContent = result.error;
+        errorMsg.classList.add('visible');
+        btn.classList.remove('loading');
+        btnText.textContent = 'Ingresar';
+        btnArrow.textContent = '→';
+        return;
+      }
+
+      errorMsg.classList.remove('visible');
+      btnText.textContent = '¡Acceso concedido!';
+      btnArrow.textContent = '✓';
+
+      const user = MT.getUser();
+      setTimeout(() => {
+        window.location.href = user.rol === 'admin' ? 'admin.html' : 'empresa.html';
+      }, 500);
+
+    }, 600); // simula latencia de red
+
+    return false;
+  }
+</script>
+</body>
+</html>
