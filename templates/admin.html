@@ -153,8 +153,12 @@
 </style>
 </head>
 <body>
-<script src="mt-core.js"></script>
-<script>MT.guard('admin');</script>
+<script>
+  (async () => {
+    const res = await fetch('/api/admin/resumen/', { credentials: 'same-origin' });
+    if (res.status === 401 || res.status === 403) window.location.href = '/login/';
+  })();
+</script>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -226,10 +230,6 @@
       <div class="kpi-sub">Estimado anual</div>
       <div class="kpi-icon">💰</div>
     </div>
-  </div>
-
-  <div class="info-box">
-    ⚠️ Los datos numéricos son ficticios. Se reemplazarán con información real desde la base de datos en Sprint 3.
   </div>
 
   <!-- Empresas -->
@@ -347,9 +347,74 @@
 </main>
 
 <script>
-  const user = MT.getUser();
-  if (user) document.getElementById('sidebarName').textContent = user.nombre;
-  MT.fillUI();
+async function cargarResumen() {
+  const res = await fetch('/api/admin/resumen/', { credentials: 'same-origin' });
+  if (!res.ok) return;
+  const data = await res.json();
+
+  // KPIs
+  document.querySelector('.kpi-card.c-orange .kpi-value').textContent = data.kpis.total_empresas;
+  document.querySelector('.kpi-card.c-violet .kpi-value').textContent = data.kpis.total_usuarios;
+  document.querySelector('.kpi-card.c-green  .kpi-value').textContent = data.kpis.merma_pct;
+  document.querySelector('.kpi-card.c-yellow .kpi-value').textContent = data.kpis.perdida_usd;
+
+  // Subtítulos KPIs
+  const nombres = data.empresas.map(e => e.nombre).join(' · ');
+  document.querySelector('.kpi-card.c-orange .kpi-sub').textContent = nombres || '—';
+  const admins   = data.usuarios.filter(u => u.es_admin).length;
+  const empresas = data.usuarios.filter(u => !u.es_admin).length;
+  document.querySelector('.kpi-card.c-violet .kpi-sub').textContent =
+    `${admins} admin · ${empresas} empresa${empresas !== 1 ? 's' : ''}`;
+
+  // Tabla empresas
+  const tbodyE = document.querySelector('.table-card:nth-child(3) tbody');
+  tbodyE.innerHTML = data.empresas.map(e => `
+    <tr>
+      <td><span style="color:#FF6B2B;font-weight:700;">${e.nombre[0]}</span>
+          <strong style="color:#F0F2FF;"> ${e.nombre}</strong></td>
+      <td style="color:#5A5E7A;font-family:monospace;">${e.usuario}</td>
+      <td style="color:#7A7EA0;">${e.rubro}</td>
+      <td>${e.merma_pct}</td>
+      <td>
+        <span class="status-dot ${e.tiene_datos ? 'dot-green' : 'dot-yellow'}"></span>
+        <span class="pill ${e.tiene_datos ? 'pill-green' : 'pill-yellow'}">
+          ${e.tiene_datos ? 'Con datos' : 'Sin datos BD'}
+        </span>
+      </td>
+      <td>
+        <button class="btn-action">Ver</button>
+        <button class="btn-action">Editar</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Tabla usuarios
+  const tbodyU = document.querySelector('.table-card:nth-child(4) tbody');
+  tbodyU.innerHTML = data.usuarios.map(u => `
+    <tr>
+      <td style="color:#5A5E7A;font-family:monospace;">${u.username}</td>
+      <td style="color:#F0F2FF;font-weight:600;">${u.nombre}</td>
+      <td><span class="pill ${u.es_admin ? 'pill-orange' : 'pill-violet'}">
+        ${u.es_admin ? 'admin' : 'empresa'}
+      </span></td>
+      <td style="color:${u.empresa === '—' ? '#3E4260' : '#C5C9E8'};">${u.empresa}</td>
+      <td>
+        <span class="status-dot ${u.activo ? 'dot-green' : 'dot-yellow'}"></span>
+        <span style="color:${u.activo ? '#00E5A0' : '#FFD166'};font-size:0.78rem;">
+          ${u.activo ? 'Activo' : 'Inactivo'}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+
+  // Sidebar nombre
+  document.getElementById('sidebarName').textContent = 'Administrador';
+}
+
+// Botón cerrar sesión
+document.querySelector('.btn-logout').onclick = () => window.location.href = '/logout/';
+
+document.addEventListener('DOMContentLoaded', cargarResumen);
 </script>
 </body>
 </html>

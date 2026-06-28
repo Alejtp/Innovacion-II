@@ -184,14 +184,6 @@
 
 <script src="mt-core.js"></script>
 <script>
-  // Si ya hay sesión activa, redirigir directamente
-  (function() {
-    const user = MT.getUser();
-    if (user) {
-      window.location.href = user.rol === 'admin' ? 'admin.html' : 'empresa.html';
-    }
-  })();
-
   function togglePass() {
     const inp = document.getElementById('password');
     inp.type = inp.type === 'password' ? 'text' : 'password';
@@ -203,7 +195,7 @@
     document.getElementById('password').focus();
   }
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
     const usuario  = document.getElementById('usuario').value.trim();
     const password = document.getElementById('password').value;
@@ -213,42 +205,56 @@
     const btnArrow = document.getElementById('btnArrow');
 
     if (!usuario || !password) {
-      errorMsg.textContent = 'Completa todos los campos.';
-      errorMsg.classList.add('visible');
-      return false;
+        errorMsg.textContent = 'Completa todos los campos.';
+        errorMsg.classList.add('visible');
+        return false;
     }
 
-    // Simular loading
     btn.classList.add('loading');
     btnText.textContent = 'Verificando...';
     btnArrow.textContent = '⏳';
 
-    // [TODO-API] Reemplazar por fetch POST /api/auth/login
-    setTimeout(() => {
-      const result = MT.login(usuario, password);
+    const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
 
-      if (!result.ok) {
-        errorMsg.textContent = result.error;
+    try {
+        const res = await fetch('/login/', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken || '',
+            },
+            body: JSON.stringify({ username: usuario, password: password }),
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+            errorMsg.textContent = data.error;
+            errorMsg.classList.add('visible');
+            btn.classList.remove('loading');
+            btnText.textContent = 'Ingresar';
+            btnArrow.textContent = '→';
+            return false;
+        }
+
+        btnText.textContent = '¡Acceso concedido!';
+        btnArrow.textContent = '✓';
+        setTimeout(() => { window.location.href = data.redirect; }, 500);
+
+    } catch(err) {
+        errorMsg.textContent = 'Error de conexión.';
         errorMsg.classList.add('visible');
         btn.classList.remove('loading');
         btnText.textContent = 'Ingresar';
         btnArrow.textContent = '→';
-        return;
-      }
-
-      errorMsg.classList.remove('visible');
-      btnText.textContent = '¡Acceso concedido!';
-      btnArrow.textContent = '✓';
-
-      const user = MT.getUser();
-      setTimeout(() => {
-        window.location.href = user.rol === 'admin' ? 'admin.html' : 'empresa.html';
-      }, 500);
-
-    }, 600); // simula latencia de red
+    }
 
     return false;
-  }
+}
 </script>
 </body>
 </html>

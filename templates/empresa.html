@@ -159,8 +159,15 @@
 </style>
 </head>
 <body>
-<script src="mt-core.js"></script>
-<script>MT.guard('empresa');</script>
+<script>
+  // Guard: si no hay sesión Django redirige al login
+  (async () => {
+    const res = await fetch('/api/empresa/', { credentials: 'same-origin' });
+    if (res.status === 401 || res.status === 403) {
+      window.location.href = '/login/';
+    }
+  })();
+</script>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -195,16 +202,7 @@
     <div class="topbar-right">
       <span class="badge badge-violet">🏭 Empresa</span>
       <span class="badge badge-gray">📅 Sprint 2</span>
-      <button class="btn-logout" onclick="MT.logout()">Cerrar sesión</button>
-    </div>
-  </div>
-
-  <div class="info-box">
-    <span style="font-size:1.2rem;">🗄️</span>
-    <div>
-      <strong>Vista lista para conectar a BD.</strong> Cuando el equipo conecte el backend en Sprint 3,
-      los KPIs, gráficos y tablas se poblarán automáticamente con los datos reales de tu empresa.
-      <!-- [TODO-API] Ver función cargarDatosEmpresa() en el script al final -->
+      <button class="btn-logout" onclick="window.location.href='/logout/'">Cerrar sesión</button>
     </div>
   </div>
 
@@ -340,14 +338,20 @@
    * }
    * ─────────────────────────────────────────────────────────────────────────
    */
-  async function cargarDatosEmpresa(usuario) {
-    // TODO-API: descomentar cuando haya backend
-    // const res = await fetch(`/api/empresa/${usuario}`);
-    // if (!res.ok) throw new Error('Error al cargar datos');
-    // return await res.json();
-    return null;
+  async function cargarDatosEmpresa() {
+    const res = await fetch('/api/empresa/', {
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+    if (res.status === 401) {
+      window.location.href = '/login/';
+      return null;
+    }
+    if (!res.ok) throw new Error(`Error ${res.status}`);
+    const data = await res.json();
+    console.log('[DEBUG] Datos recibidos:', data);
+    return data;
   }
-
   function poblarVista(data) {
     if (!data) return;
     const set = (id, val) => { const el = document.getElementById(id); if (el) { el.textContent = val; el.classList.remove('data-empty'); el.classList.add('data-val'); } };
@@ -363,18 +367,16 @@
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const user = MT.getUser();
-    if (!user) return;
-    document.getElementById('sidebarNombre').textContent = user.nombre || 'Mi empresa';
-    document.getElementById('topbarNombre').textContent  = user.nombre || 'Mi empresa';
-    document.getElementById('topbarUsuario').textContent = '@' + (user.usuario || '');
-    MT.fillUI();
-
     try {
-      const data = await cargarDatosEmpresa(user.usuario);
+      const data = await cargarDatosEmpresa();
+      if (!data) return;
+      // Poblar nombre en sidebar y topbar
+      document.getElementById('sidebarNombre').textContent = data.nombre || 'Mi empresa';
+      document.getElementById('topbarNombre').textContent  = data.nombre || 'Mi empresa';
+      document.getElementById('topbarUsuario').textContent = '@' + (data.username || 'empresa');
       poblarVista(data);
     } catch(e) {
-      MT.toast('No se pudo cargar datos de la empresa', 'error');
+      console.error(e);
     }
   });
 </script>
