@@ -8,12 +8,25 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0F1117; color: #F0F2FF;
+    display: flex; min-height: 100vh;
+    margin: 0;
+  }
+  .login-wrapper { 
+    width: 50%; /* La mitad izquierda */
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px;
+  }
+  .demo-container {
+    width: 50%;
+    background: #13151F; border-right: 1px solid #1F2235;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px;
+  }
+  .demo-hint {
+    width: 100%; max-width: 420px;
     background: #0F1117;
-    color: #F0F2FF;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 1px solid #1F2235; border-radius: 10px; padding: 20px;
   }
   .fabric-top {
     position: fixed; top: 0; left: 0; right: 0; height: 4px;
@@ -25,8 +38,13 @@
     );
     z-index: 999;
   }
-  .login-wrapper { width: 100%; max-width: 420px; padding: 24px; }
+  .login-wrapper { 
+    width: 50%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px;
+  }
   .login-card {
+    width: 100%; max-width: 420px; /* Para que no se estire demasiado */
     background: #13151F; border: 1px solid #1F2235;
     border-radius: 20px; padding: 40px 36px 36px;
   }
@@ -116,68 +134,63 @@
 <body>
 <div class="fabric-top"></div>
 
-<div class="login-wrapper">
-  <div class="login-card">
-
-    <div class="brand">
-      <div class="logo-badge">Sprint 2</div>
-      <h1>Merma Textil<br/>Analytics</h1>
-      <p>Proyecto de Gestión de Residuos Textiles</p>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="error-msg" id="errorMsg"></div>
-
-    <form id="loginForm" onsubmit="return handleLogin(event)">
-      <div class="form-group">
-        <label for="usuario">Usuario</label>
-        <input type="text" id="usuario" placeholder="Ingresa tu usuario" autocomplete="off" autofocus/>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <div class="pass-wrap">
-          <input type="password" id="password" placeholder="••••••••"/>
-          <button type="button" class="pass-toggle" onclick="togglePass()" title="Mostrar/ocultar">👁</button>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-login" id="btnLogin">
-        <span id="btnText">Ingresar</span>
-        <span id="btnArrow">→</span>
-      </button>
-    </form>
-
-    <!-- Demo credentials hint -->
+<!-- Lado Izquierdo: Datos de prueba -->
+<div class="demo-container">
     <div class="demo-hint">
       <p>🔑 Datos de prueba</p>
       <div class="demo-row">
         <span class="demo-user">admin</span>
         <span class="demo-pass">admin123</span>
         <span class="demo-role-badge dr-admin">admin</span>
-        <button class="btn-fill" onclick="fill('admin','admin123')" title="Usar">↗</button>
+        <button class="btn-fill" onclick="fill('admin','admin123')">↗</button>
       </div>
       <div class="demo-row">
         <span class="demo-user">empresa1</span>
         <span class="demo-pass">emp123</span>
         <span class="demo-role-badge dr-empresa">empresa</span>
-        <button class="btn-fill" onclick="fill('empresa1','emp123')" title="Usar">↗</button>
+        <button class="btn-fill" onclick="fill('empresa1','emp123')">↗</button>
       </div>
       <div class="demo-row">
         <span class="demo-user">empresa2</span>
         <span class="demo-pass">emp456</span>
         <span class="demo-role-badge dr-empresa">empresa</span>
-        <button class="btn-fill" onclick="fill('empresa2','emp456')" title="Usar">↗</button>
+        <button class="btn-fill" onclick="fill('empresa2','emp456')">↗</button>
       </div>
       <div class="demo-row">
         <span class="demo-user">empresa3</span>
         <span class="demo-pass">emp789</span>
         <span class="demo-role-badge dr-empresa">empresa</span>
-        <button class="btn-fill" onclick="fill('empresa3','emp789')" title="Usar">↗</button>
+        <button class="btn-fill" onclick="fill('empresa3','emp789')">↗</button>
       </div>
     </div>
+</div>
 
+<!-- Lado Derecho: Login -->
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="brand">
+      <h1>Merma Textil<br/>Analytics</h1>
+      <p>Proyecto de Gestión de Residuos Textiles</p>
+    </div>
+    <div class="divider"></div>
+    <div class="error-msg" id="errorMsg"></div>
+    <form id="loginForm" onsubmit="return handleLogin(event)">
+      <div class="form-group">
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" placeholder="Ingresa tu usuario" autocomplete="off" autofocus/>
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="pass-wrap">
+          <input type="password" id="password" placeholder="••••••••"/>
+          <button type="button" class="pass-toggle" onclick="togglePass()">👁</button>
+        </div>
+      </div>
+      <button type="submit" class="btn-login" id="btnLogin">
+        <span id="btnText">Ingresar</span>
+        <span id="btnArrow">→</span>
+      </button>
+    </form>
     <p class="login-note">Sistema interno · Solo acceso autorizado</p>
   </div>
 </div>
