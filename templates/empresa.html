@@ -257,7 +257,12 @@
   <!-- Info de tienda + etapas -->
   <div class="two-col">
     <div class="section-card">
-      <h3>Información de la Tienda</h3>
+      <h3 style="display:flex;justify-content:space-between;align-items:center;border-bottom:none;margin-bottom:8px;padding-bottom:0;">
+        Información de la Tienda
+        <button id="btnEditarInfo" onclick="toggleEdicionInfo()" style="background:transparent;border:none;color:#7C6FFF;cursor:pointer;font-size:1rem;">✏️</button>
+      </h3>
+      <div style="border-bottom:1px solid #1F2235;margin-bottom:16px;"></div>
+      <div id="infoVista">
       <div class="data-row">
         <span class="data-label">Nombre comercial</span>
         <span id="infoNombre" class="data-empty">Por cargar desde BD</span>
@@ -282,6 +287,31 @@
         <span class="data-label">Estado en sistema</span>
         <span class="pill pill-violet">Activo</span>
       </div>
+      </div>
+
+      <div id="infoEdicion" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.7rem;color:#5A5E7A;text-transform:uppercase;margin-bottom:5px;">Rubro</label>
+          <input id="editInfoRubro" type="text" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.82rem;padding:8px 10px;"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.7rem;color:#5A5E7A;text-transform:uppercase;margin-bottom:5px;">Tamaño</label>
+          <input id="editInfoTamano" type="text" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.82rem;padding:8px 10px;"/>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.7rem;color:#5A5E7A;text-transform:uppercase;margin-bottom:5px;">Región</label>
+          <input id="editInfoRegion" type="text" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.82rem;padding:8px 10px;"/>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:0.7rem;color:#5A5E7A;text-transform:uppercase;margin-bottom:5px;">Contacto principal</label>
+          <input id="editInfoContacto" type="text" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.82rem;padding:8px 10px;"/>
+        </div>
+        <div id="infoEditError" style="display:none;color:#FF6B6B;font-size:0.74rem;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button onclick="toggleEdicionInfo()" style="background:transparent;border:1px solid #2A2D3E;color:#7A7EA0;font-family:inherit;font-size:0.78rem;padding:7px 14px;border-radius:6px;cursor:pointer;">Cancelar</button>
+          <button id="btnGuardarInfo" onclick="guardarInfoEmpresa()" style="background:#7C6FFF;border:none;color:#fff;font-family:inherit;font-weight:700;font-size:0.78rem;padding:7px 14px;border-radius:6px;cursor:pointer;">Guardar</button>
+        </div>
+      </div>
     </div>
     <div class="section-card">
       <h3>Etapas Productivas Registradas</h3>
@@ -304,6 +334,42 @@
   </div>
 
   <!-- Hallazgos -->
+  <!-- Historial de mermas -->
+  <div class="section-card">
+    <h3>Historial de Mermas Registradas <span id="contadorMermas"></span></h3>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <select id="filtroEtapa" onchange="aplicarFiltrosHistorial()" style="background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;">
+        <option value="">Todas las etapas</option>
+      </select>
+      <select id="filtroTipo" onchange="aplicarFiltrosHistorial()" style="background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;">
+        <option value="">Todos los tipos</option>
+        <option value="Operativa">Operativa</option>
+        <option value="Anormal">Anormal</option>
+      </select>
+      <input id="filtroBusqueda" type="text" placeholder="Buscar por problema..." oninput="aplicarFiltrosHistorial()" style="flex:1;min-width:160px;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;"/>
+      <button onclick="limpiarFiltrosHistorial()" style="background:transparent;border:1px solid #2A2D3E;color:#7A7EA0;font-family:inherit;font-size:0.78rem;padding:7px 14px;border-radius:8px;cursor:pointer;">Limpiar</button>
+    </div>
+
+    <div id="tablaMermasWrap">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+        <thead>
+          <tr style="border-bottom:1px solid #2A2D3E;">
+            <th style="text-align:left;padding:8px 10px;font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3E4260;">Etapa</th>
+            <th style="text-align:left;padding:8px 10px;font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3E4260;">Problema</th>
+            <th style="text-align:left;padding:8px 10px;font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3E4260;">Tipo</th>
+            <th style="text-align:left;padding:8px 10px;font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3E4260;">% Merma</th>
+            <th style="text-align:left;padding:8px 10px;font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3E4260;">Fecha</th>
+            <th style="text-align:left;padding:8px 10px;font-size:0.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#3E4260;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaMermasBody"></tbody>
+      </table>
+      <div id="tablaMermasVacia" style="display:none;text-align:center;padding:30px 0;color:#3E4260;font-size:0.82rem;font-style:italic;">No hay registros de mermas aún</div>
+    </div>
+  </div>
+
+  <!-- Hallazgos -->
   <div class="section-card">
     <h3>Hallazgos y Notas <span>registradas por el equipo</span></h3>
     <div class="data-row"><span class="data-label">Problema principal detectado</span><span class="data-empty">Sin datos</span></div>
@@ -311,8 +377,77 @@
     <div class="data-row"><span class="data-label">Acciones propuestas</span><span class="data-empty">Sin datos</span></div>
     <div class="data-row"><span class="data-label">Último hallazgo</span><span class="data-empty">Sin datos</span></div>
   </div>
-</main>
+<!-- Botón flotante para registrar merma -->
+  <button onclick="abrirModalMerma()" style="position:fixed;bottom:28px;right:28px;background:#FF6B2B;color:#fff;border:none;border-radius:50%;width:56px;height:56px;font-size:1.6rem;cursor:pointer;box-shadow:0 8px 24px rgba(255,107,43,0.4);z-index:200;">+</button>
 
+  <!-- Modal confirmación eliminar -->
+  <div id="modalConfirmar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:center;justify-content:center;">
+    <div style="background:#13151F;border:1px solid #1F2235;border-radius:16px;padding:28px;width:100%;max-width:380px;text-align:center;">
+      <div style="font-size:2.2rem;margin-bottom:12px;">🗑️</div>
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px;">¿Eliminar este registro?</h3>
+      <p style="font-size:0.82rem;color:#7A7EA0;margin-bottom:22px;">Esta acción no se puede deshacer.</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button onclick="cerrarModalConfirmar()" style="background:transparent;border:1px solid #2A2D3E;color:#7A7EA0;font-family:inherit;font-size:0.82rem;padding:9px 20px;border-radius:8px;cursor:pointer;">Cancelar</button>
+        <button id="btnConfirmarEliminar" style="background:#FF5050;border:none;color:#fff;font-family:inherit;font-weight:700;font-size:0.82rem;padding:9px 20px;border-radius:8px;cursor:pointer;">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal registro de merma -->
+  <div id="modalMerma" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;">
+    <div style="background:#13151F;border:1px solid #1F2235;border-radius:16px;padding:28px;width:100%;max-width:420px;">
+      <h3 id="modalMermaTitulo" style="font-size:1.05rem;font-weight:700;margin-bottom:18px;">Registrar nueva merma</h3>
+      <div id="formError" style="display:none;background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#FF6B6B;font-size:0.78rem;border-radius:8px;padding:9px 12px;margin-bottom:14px;"></div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#5A5E7A;margin-bottom:6px;">Etapa</label>
+        <select id="formEtapa" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.85rem;padding:9px 12px;"></select>
+        <span class="field-error" id="errEtapa" style="display:none;color:#FF6B6B;font-size:0.7rem;margin-top:4px;"></span>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#5A5E7A;margin-bottom:6px;">Problema detectado</label>
+        <input id="formProblema" type="text" placeholder="Ej: Defectos de costura" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.85rem;padding:9px 12px;"/>
+        <span class="field-error" id="errProblema" style="display:none;color:#FF6B6B;font-size:0.7rem;margin-top:4px;"></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div>
+          <label style="display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#5A5E7A;margin-bottom:6px;">Tipo</label>
+          <select id="formTipo" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.85rem;padding:9px 12px;">
+            <option value="operativa">Operativa</option>
+            <option value="anormal">Anormal</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#5A5E7A;margin-bottom:6px;">Prioridad</label>
+          <select id="formPrioridad" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.85rem;padding:9px 12px;">
+            <option value="baja">Baja</option>
+            <option value="media" selected>Media</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        <div>
+          <label style="display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#5A5E7A;margin-bottom:6px;">% Merma</label>
+          <input id="formPorcentaje" type="number" step="0.01" min="0" max="100" placeholder="18.5" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.85rem;padding:9px 12px;"/>
+          <span class="field-error" id="errPorcentaje" style="display:none;color:#FF6B6B;font-size:0.7rem;margin-top:4px;"></span>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.72rem;font-weight:700;text-transform:uppercase;color:#5A5E7A;margin-bottom:6px;">Impacto ($)</label>
+          <input id="formImpacto" type="number" step="0.01" min="0" placeholder="150000" style="width:100%;background:#0F1117;border:1px solid #2A2D3E;border-radius:8px;color:#F0F2FF;font-family:inherit;font-size:0.85rem;padding:9px 12px;"/>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="cerrarModalMerma()" style="background:transparent;border:1px solid #2A2D3E;color:#7A7EA0;font-family:inherit;font-size:0.82rem;padding:9px 18px;border-radius:8px;cursor:pointer;">Cancelar</button>
+        <button id="btnGuardarMerma" onclick="guardarMerma()" style="background:#FF6B2B;border:none;color:#fff;font-family:inherit;font-weight:700;font-size:0.82rem;padding:9px 18px;border-radius:8px;cursor:pointer;">Registrar</button>
+      </div>
+    </div>
+  </div>
+</main>
 <script>
   /*
    * ─────────────────────────────────────────────────────────────────────────
@@ -354,7 +489,9 @@
   }
   function poblarVista(data) {
     if (!data) return;
+    datosEmpresaActual = data;
     const set = (id, val) => { const el = document.getElementById(id); if (el) { el.textContent = val; el.classList.remove('data-empty'); el.classList.add('data-val'); } };
+
     set('kpiMerma',    data.merma_pct         || '—');
     set('kpiPerdida',  data.perdida_usd        || '—');
     set('kpiEtapas',   data.etapas_criticas    || '—');
@@ -364,17 +501,411 @@
     set('infoTamano',  data.tamano             || '—');
     set('infoRegion',  data.region             || '—');
     set('infoContacto',data.contacto           || '—');
+
+    const subs = document.querySelectorAll('.kpi-sub');
+    if (subs[0]) { subs[0].textContent = `${data.total_mermas} registro${data.total_mermas !== 1 ? 's' : ''}`; subs[0].classList.remove('data-empty'); }
+    if (subs[1]) { subs[1].textContent = `${data.total_mermas} registro${data.total_mermas !== 1 ? 's' : ''}`; subs[1].classList.remove('data-empty'); }
+    if (subs[2]) { subs[2].textContent = `de ${data.etapas_detalle.length} etapas registradas`; subs[2].classList.remove('data-empty'); }
+    if (subs[3]) { subs[3].textContent = 'Sin meta definida'; subs[3].classList.remove('data-empty'); }
+
+    poblarEtapas(data.etapas_detalle);
+    poblarTipos(data.tipos_detalle);
+    poblarEtapasRegistradas(data.etapas_detalle);
+  }
+
+  function poblarEtapas(etapas) {
+    const cont = document.querySelector('.two-col .section-card:nth-child(1) .chart-empty')?.parentElement;
+    if (!cont) return;
+    const chartDiv = cont.querySelector('.chart-empty');
+    if (!chartDiv) return;
+    const conDatos = etapas.filter(e => e.tiene_datos);
+    if (conDatos.length === 0) return;
+    chartDiv.outerHTML = conDatos.map(e => `
+      <div class="data-row">
+        <span class="data-label">${e.nombre}</span>
+        <span class="data-val">${e.merma_pct} <span style="color:#5A5E7A;font-weight:400;">(${e.registros} reg.)</span></span>
+      </div>
+    `).join('');
+  }
+
+  function poblarTipos(tipos) {
+    const cont = document.querySelectorAll('.two-col .section-card')[1];
+    if (!cont) return;
+    const chartDiv = cont.querySelector('.chart-empty');
+    if (!chartDiv) return;
+    const conDatos = tipos.filter(t => t.cantidad > 0);
+    if (conDatos.length === 0) return;
+    chartDiv.outerHTML = conDatos.map(t => `
+      <div class="data-row">
+        <span class="data-label">${t.tipo}</span>
+        <span class="data-val">${t.cantidad} <span style="color:#5A5E7A;font-weight:400;">(${t.porcentaje}%)</span></span>
+      </div>
+    `).join('');
+  }
+
+  function poblarEtapasRegistradas(etapas) {
+    const cards = document.querySelectorAll('.two-col')[1]?.querySelectorAll('.section-card');
+    const cont = cards ? cards[1] : null;
+    if (!cont) return;
+    const rows = cont.querySelectorAll('.data-row');
+    etapas.forEach((etapa, i) => {
+      if (!rows[i]) return;
+      const label = rows[i].querySelector('.data-label');
+      const valor = rows[i].querySelector('span:last-child');
+      if (label) label.textContent = etapa.nombre;
+      if (valor) {
+        valor.textContent = etapa.tiene_datos ? etapa.merma_pct : 'Sin datos';
+        valor.className = etapa.tiene_datos ? 'data-val' : 'data-empty';
+      }
+    });
+  }
+
+  function getCsrfToken() {
+    return document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+  }
+
+  let mermaEditandoId = null;
+
+  async function asegurarEtapasCargadas() {
+    const select = document.getElementById('formEtapa');
+    if (select.options.length === 0) {
+      const res = await fetch('/api/etapas/', { credentials: 'same-origin' });
+      const data = await res.json();
+      select.innerHTML = data.etapas.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+    }
+  }
+
+  async function abrirModalMerma() {
+    mermaEditandoId = null;
+    document.getElementById('modalMermaTitulo').textContent = 'Registrar nueva merma';
+    document.getElementById('btnGuardarMerma').textContent = 'Registrar';
+    document.getElementById('formProblema').value = '';
+    document.getElementById('formPorcentaje').value = '';
+    document.getElementById('formImpacto').value = '';
+    document.getElementById('formTipo').value = 'operativa';
+    document.getElementById('formPrioridad').value = 'media';
+    limpiarErroresCampo();
+
+    await asegurarEtapasCargadas();
+    document.getElementById('modalMerma').style.display = 'flex';
+  }
+
+  async function editarMermaAbrir(m) {
+    mermaEditandoId = m.id;
+    document.getElementById('modalMermaTitulo').textContent = 'Editar registro de merma';
+    document.getElementById('btnGuardarMerma').textContent = 'Guardar cambios';
+    limpiarErroresCampo();
+
+    await asegurarEtapasCargadas();
+
+    document.getElementById('formEtapa').value      = m.etapa_id;
+    document.getElementById('formProblema').value   = m.problema;
+    document.getElementById('formTipo').value       = m.tipo_code;
+    document.getElementById('formPrioridad').value  = m.prioridad_code;
+    document.getElementById('formPorcentaje').value = m.porcentaje_raw;
+    document.getElementById('formImpacto').value    = m.impacto_raw;
+
+    document.getElementById('modalMerma').style.display = 'flex';
+  }
+
+  function cerrarModalMerma() {
+    document.getElementById('modalMerma').style.display = 'none';
+    mermaEditandoId = null;
+  }
+
+  function limpiarErroresCampo() {
+    document.querySelectorAll('.field-error').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
+    document.getElementById('formError').style.display = 'none';
+  }
+
+  function mostrarErrorCampo(id, msg) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+
+  function validarFormularioMerma(payload) {
+    let valido = true;
+
+    if (!payload.etapa_id) {
+      mostrarErrorCampo('errEtapa', 'Selecciona una etapa.');
+      valido = false;
+    }
+    if (!payload.problema) {
+      mostrarErrorCampo('errProblema', 'Describe el problema detectado.');
+      valido = false;
+    } else if (payload.problema.length < 3) {
+      mostrarErrorCampo('errProblema', 'Debe tener al menos 3 caracteres.');
+      valido = false;
+    }
+    if (!payload.porcentaje) {
+      mostrarErrorCampo('errPorcentaje', 'Ingresa el porcentaje de merma.');
+      valido = false;
+    } else {
+      const pct = parseFloat(payload.porcentaje);
+      if (isNaN(pct) || pct < 0 || pct > 100) {
+        mostrarErrorCampo('errPorcentaje', 'Debe estar entre 0 y 100.');
+        valido = false;
+      }
+    }
+
+    return valido;
+  }
+
+  async function guardarMerma() {
+    limpiarErroresCampo();
+    const btn = document.getElementById('btnGuardarMerma');
+
+    const payload = {
+      etapa_id:   document.getElementById('formEtapa').value,
+      problema:   document.getElementById('formProblema').value.trim(),
+      tipo:       document.getElementById('formTipo').value,
+      prioridad:  document.getElementById('formPrioridad').value,
+      porcentaje: document.getElementById('formPorcentaje').value,
+      impacto:    document.getElementById('formImpacto').value,
+    };
+
+    if (!validarFormularioMerma(payload)) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    const esEdicion = mermaEditandoId !== null;
+    const url = esEdicion ? `/api/merma/${mermaEditandoId}/editar/` : '/api/merma/registrar/';
+    const metodo = esEdicion ? 'PUT' : 'POST';
+    const textoOriginal = esEdicion ? 'Guardar cambios' : 'Registrar';
+
+    try {
+      const res = await fetch(url, {
+        method: metodo,
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (!data.ok) {
+        const errorBox = document.getElementById('formError');
+        errorBox.textContent = data.error || 'Error al guardar.';
+        errorBox.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+        return;
+      }
+
+      cerrarModalMerma();
+
+      const nuevaData = await cargarDatosEmpresa();
+      poblarVista(nuevaData);
+      cargarHistorialMermas();
+
+    } catch (e) {
+      const errorBox = document.getElementById('formError');
+      errorBox.textContent = 'Error de conexión.';
+      errorBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  }
+
+  function eliminarMerma(id) {
+    const modal = document.getElementById('modalConfirmar');
+    const btn   = document.getElementById('btnConfirmarEliminar');
+    modal.style.display = 'flex';
+
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = 'Eliminando...';
+
+      try {
+        const res = await fetch(`/api/merma/${id}/eliminar/`, {
+          method: 'DELETE',
+          credentials: 'same-origin',
+          headers: { 'X-CSRFToken': getCsrfToken() },
+        });
+        const data = await res.json();
+
+        cerrarModalConfirmar();
+
+        if (!data.ok) {
+          alert(data.error || 'No se pudo eliminar.');
+          return;
+        }
+
+        const nuevaData = await cargarDatosEmpresa();
+        poblarVista(nuevaData);
+        cargarHistorialMermas();
+
+      } catch (e) {
+        cerrarModalConfirmar();
+        alert('Error de conexión.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Eliminar';
+      }
+    };
+  }
+
+  function cerrarModalConfirmar() {
+    document.getElementById('modalConfirmar').style.display = 'none';
+  }
+
+  let datosEmpresaActual = null;
+
+  function toggleEdicionInfo() {
+    const vista  = document.getElementById('infoVista');
+    const edicion = document.getElementById('infoEdicion');
+    const abriendo = edicion.style.display === 'none';
+
+    if (abriendo && datosEmpresaActual) {
+      document.getElementById('editInfoRubro').value    = datosEmpresaActual.rubro || '';
+      document.getElementById('editInfoTamano').value   = datosEmpresaActual.tamano || '';
+      document.getElementById('editInfoRegion').value   = datosEmpresaActual.region || '';
+      document.getElementById('editInfoContacto').value = datosEmpresaActual.contacto || '';
+      document.getElementById('infoEditError').style.display = 'none';
+    }
+
+    vista.style.display   = abriendo ? 'none' : '';
+    edicion.style.display = abriendo ? 'block' : 'none';
+  }
+
+  async function guardarInfoEmpresa() {
+    const errorBox = document.getElementById('infoEditError');
+    const btn = document.getElementById('btnGuardarInfo');
+    errorBox.style.display = 'none';
+
+    const payload = {
+      rubro:    document.getElementById('editInfoRubro').value.trim(),
+      tamano:   document.getElementById('editInfoTamano').value.trim(),
+      region:   document.getElementById('editInfoRegion').value.trim(),
+      contacto: document.getElementById('editInfoContacto').value.trim(),
+    };
+
+    btn.disabled = true;
+    btn.textContent = 'Guardando...';
+
+    try {
+      const res = await fetch('/api/empresa/editar/', {
+        method: 'PUT',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (!data.ok) {
+        errorBox.textContent = data.error || 'Error al guardar.';
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      toggleEdicionInfo();
+      const nuevaData = await cargarDatosEmpresa();
+      poblarVista(nuevaData);
+
+    } catch (e) {
+      errorBox.textContent = 'Error de conexión.';
+      errorBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Guardar';
+    }
+  }
+
+  let mermasCache = [];
+
+  async function cargarHistorialMermas() {
+    const res = await fetch('/api/mermas/listar/', { credentials: 'same-origin' });
+    if (!res.ok) return;
+    const data = await res.json();
+    mermasCache = data.mermas;
+
+    poblarFiltroEtapas(mermasCache);
+    aplicarFiltrosHistorial();
+  }
+
+  function poblarFiltroEtapas(mermas) {
+    const select = document.getElementById('filtroEtapa');
+    if (select.options.length > 1) return; // ya poblado
+    const etapasUnicas = [...new Set(mermas.map(m => m.etapa))];
+    etapasUnicas.forEach(nombre => {
+      const opt = document.createElement('option');
+      opt.value = nombre;
+      opt.textContent = nombre;
+      select.appendChild(opt);
+    });
+  }
+
+  function aplicarFiltrosHistorial() {
+    const etapa = document.getElementById('filtroEtapa').value;
+    const tipo  = document.getElementById('filtroTipo').value;
+    const busqueda = document.getElementById('filtroBusqueda').value.trim().toLowerCase();
+
+    const filtradas = mermasCache.filter(m => {
+      if (etapa && m.etapa !== etapa) return false;
+      if (tipo && m.tipo !== tipo) return false;
+      if (busqueda && !m.problema.toLowerCase().includes(busqueda)) return false;
+      return true;
+    });
+
+    renderTablaMermas(filtradas);
+  }
+
+  function limpiarFiltrosHistorial() {
+    document.getElementById('filtroEtapa').value = '';
+    document.getElementById('filtroTipo').value = '';
+    document.getElementById('filtroBusqueda').value = '';
+    aplicarFiltrosHistorial();
+  }
+
+  function renderTablaMermas(mermas) {
+    const body   = document.getElementById('tablaMermasBody');
+    const vacia  = document.getElementById('tablaMermasVacia');
+    const wrap   = document.getElementById('tablaMermasWrap').querySelector('table');
+    const cont   = document.getElementById('contadorMermas');
+
+    const totalReal = mermasCache.length;
+    const mostrando = mermas.length;
+    cont.textContent = mostrando === totalReal
+      ? `${totalReal} registro${totalReal !== 1 ? 's' : ''}`
+      : `${mostrando} de ${totalReal} registros`;
+
+    if (mermas.length === 0) {
+      wrap.style.display = 'none';
+      vacia.textContent = totalReal === 0
+        ? 'No hay registros de mermas aún'
+        : 'No hay registros que coincidan con el filtro';
+      vacia.style.display = 'block';
+      return;
+    }
+
+    wrap.style.display = '';
+    vacia.style.display = 'none';
+
+    body.innerHTML = mermas.map(m => `
+      <tr style="border-bottom:1px solid #1F2235;">
+        <td style="padding:10px;color:#C5C9E8;">${m.etapa}</td>
+        <td style="padding:10px;color:#C5C9E8;">${m.problema}</td>
+        <td style="padding:10px;color:#C5C9E8;">${m.tipo}</td>
+        <td style="padding:10px;color:#F0F2FF;font-weight:700;">${m.porcentaje}</td>
+        <td style="padding:10px;color:#5A5E7A;font-size:0.76rem;">${m.fecha}</td>
+        <td style="padding:10px;white-space:nowrap;">
+          <button onclick='editarMermaAbrir(${JSON.stringify(m)})' style="background:transparent;border:1px solid #2A2D3E;color:#7C6FFF;font-family:inherit;font-size:0.72rem;padding:4px 10px;border-radius:6px;cursor:pointer;margin-right:4px;">Editar</button>
+          <button onclick="eliminarMerma(${m.id})" style="background:transparent;border:1px solid #2A2D3E;color:#FF6B6B;font-family:inherit;font-size:0.72rem;padding:4px 10px;border-radius:6px;cursor:pointer;">Eliminar</button>
+        </td>
+      </tr>
+    `).join('');
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
       const data = await cargarDatosEmpresa();
       if (!data) return;
-      // Poblar nombre en sidebar y topbar
       document.getElementById('sidebarNombre').textContent = data.nombre || 'Mi empresa';
       document.getElementById('topbarNombre').textContent  = data.nombre || 'Mi empresa';
       document.getElementById('topbarUsuario').textContent = '@' + (data.username || 'empresa');
       poblarVista(data);
+      cargarHistorialMermas();
     } catch(e) {
       console.error(e);
     }

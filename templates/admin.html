@@ -344,8 +344,75 @@
       <div class="summary-item"><span class="summary-label">Dashboard</span><span style="color:#FF6B2B;">Sprint 2</span></div>
     </div>
   </div>
-</main>
+<!-- Modal detalle de empresa -->
+  <div id="modalDetalleEmpresa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:center;justify-content:center;">
+    <div style="background:#13151F;border:1px solid #1F2235;border-radius:16px;padding:28px;width:100%;max-width:640px;max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h3 id="detalleEmpresaNombre" style="font-size:1.1rem;font-weight:700;"></h3>
+        <button onclick="cerrarDetalleEmpresa()" style="background:transparent;border:none;color:#7A7EA0;font-size:1.4rem;cursor:pointer;">&times;</button>
+      </div>
 
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+        <div class="summary-card" style="padding:14px;">
+          <div style="font-size:0.68rem;color:#5A5E7A;text-transform:uppercase;font-weight:700;margin-bottom:4px;">Merma promedio</div>
+          <div id="detalleMermaPct" style="font-size:1.4rem;font-weight:800;color:#FF6B2B;"></div>
+        </div>
+        <div class="summary-card" style="padding:14px;">
+          <div style="font-size:0.68rem;color:#5A5E7A;text-transform:uppercase;font-weight:700;margin-bottom:4px;">Pérdida económica</div>
+          <div id="detallePerdida" style="font-size:1.4rem;font-weight:800;color:#FFD166;"></div>
+        </div>
+      </div>
+
+      <div id="formEditarEmpresa" style="display:none;margin-bottom:20px;background:#0F1117;border:1px solid #2A2D3E;border-radius:10px;padding:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="display:block;font-size:0.68rem;text-transform:uppercase;color:#5A5E7A;margin-bottom:4px;">Nombre</label>
+            <input id="editNombre" type="text" style="width:100%;background:#13151F;border:1px solid #2A2D3E;border-radius:6px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.68rem;text-transform:uppercase;color:#5A5E7A;margin-bottom:4px;">Rubro</label>
+            <input id="editRubro" type="text" style="width:100%;background:#13151F;border:1px solid #2A2D3E;border-radius:6px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;"/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="display:block;font-size:0.68rem;text-transform:uppercase;color:#5A5E7A;margin-bottom:4px;">Tamaño</label>
+            <input id="editTamano" type="text" style="width:100%;background:#13151F;border:1px solid #2A2D3E;border-radius:6px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.68rem;text-transform:uppercase;color:#5A5E7A;margin-bottom:4px;">Región</label>
+            <input id="editRegion" type="text" style="width:100%;background:#13151F;border:1px solid #2A2D3E;border-radius:6px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;"/>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:0.68rem;text-transform:uppercase;color:#5A5E7A;margin-bottom:4px;">Contacto principal</label>
+          <input id="editContacto" type="text" style="width:100%;background:#13151F;border:1px solid #2A2D3E;border-radius:6px;color:#F0F2FF;font-family:inherit;font-size:0.8rem;padding:7px 10px;"/>
+        </div>
+        <div id="editError" style="display:none;color:#FF6B6B;font-size:0.75rem;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button onclick="cancelarEdicionEmpresa()" style="background:transparent;border:1px solid #2A2D3E;color:#7A7EA0;font-family:inherit;font-size:0.78rem;padding:7px 14px;border-radius:6px;cursor:pointer;">Cancelar</button>
+          <button id="btnGuardarEdicion" onclick="guardarEdicionEmpresa()" style="background:#7C6FFF;border:none;color:#fff;font-family:inherit;font-weight:700;font-size:0.78rem;padding:7px 14px;border-radius:6px;cursor:pointer;">Guardar cambios</button>
+        </div>
+      </div>
+
+      <button id="btnMostrarEdicion" onclick="mostrarEdicionEmpresa()" class="btn-action" style="margin-bottom:16px;">✏️ Editar datos de la empresa</button>
+
+      <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+        <thead>
+          <tr style="border-bottom:1px solid #2A2D3E;">
+            <th style="text-align:left;padding:8px;font-size:0.66rem;text-transform:uppercase;color:#3E4260;">Etapa</th>
+            <th style="text-align:left;padding:8px;font-size:0.66rem;text-transform:uppercase;color:#3E4260;">Problema</th>
+            <th style="text-align:left;padding:8px;font-size:0.66rem;text-transform:uppercase;color:#3E4260;">Tipo</th>
+            <th style="text-align:left;padding:8px;font-size:0.66rem;text-transform:uppercase;color:#3E4260;">%</th>
+            <th style="text-align:left;padding:8px;font-size:0.66rem;text-transform:uppercase;color:#3E4260;">Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="detalleMermasBody"></tbody>
+      </table>
+      <div id="detalleMermasVacio" style="display:none;text-align:center;padding:24px;color:#3E4260;font-size:0.8rem;font-style:italic;">Esta empresa no tiene mermas registradas</div>
+    </div>
+  </div>
+</main>
 <script>
 async function cargarResumen() {
   const res = await fetch('/api/admin/resumen/', { credentials: 'same-origin' });
@@ -382,8 +449,7 @@ async function cargarResumen() {
         </span>
       </td>
       <td>
-        <button class="btn-action">Ver</button>
-        <button class="btn-action">Editar</button>
+        <button class="btn-action" onclick="verDetalleEmpresa(${e.id})">Ver</button>
       </td>
     </tr>
   `).join('');
@@ -409,6 +475,116 @@ async function cargarResumen() {
 
   // Sidebar nombre
   document.getElementById('sidebarName').textContent = 'Administrador';
+}
+
+async function verDetalleEmpresa(empresaId) {
+  empresaIdActual = empresaId;
+  const res = await fetch(`/api/admin/empresa/${empresaId}/`, { credentials: 'same-origin' });
+  if (!res.ok) { alert('No se pudo cargar el detalle.'); return; }
+  const data = await res.json();
+
+  document.getElementById('detalleEmpresaNombre').textContent = data.nombre;
+  document.getElementById('detalleMermaPct').textContent = data.merma_pct;
+  document.getElementById('detallePerdida').textContent = data.perdida_usd;
+
+  document.getElementById('editNombre').value   = data.nombre || '';
+  document.getElementById('editRubro').value    = data.rubro === '—' ? '' : data.rubro;
+  document.getElementById('editTamano').value   = data.tamano === '—' ? '' : data.tamano;
+  document.getElementById('editRegion').value   = data.region === '—' ? '' : data.region;
+  document.getElementById('editContacto').value = data.contacto === '—' ? '' : data.contacto;
+
+  const body  = document.getElementById('detalleMermasBody');
+  const vacio = document.getElementById('detalleMermasVacio');
+  const tabla = body.closest('table');
+
+  if (data.mermas.length === 0) {
+    tabla.style.display = 'none';
+    vacio.style.display = 'block';
+  } else {
+    tabla.style.display = '';
+    vacio.style.display = 'none';
+    body.innerHTML = data.mermas.map(m => `
+      <tr style="border-bottom:1px solid #1F2235;">
+        <td style="padding:8px;color:#C5C9E8;">${m.etapa}</td>
+        <td style="padding:8px;color:#C5C9E8;">${m.problema}</td>
+        <td style="padding:8px;color:#C5C9E8;">${m.tipo}</td>
+        <td style="padding:8px;color:#F0F2FF;font-weight:700;">${m.porcentaje}</td>
+        <td style="padding:8px;color:#5A5E7A;font-size:0.74rem;">${m.fecha}</td>
+      </tr>
+    `).join('');
+  }
+
+  document.getElementById('modalDetalleEmpresa').style.display = 'flex';
+}
+
+function cerrarDetalleEmpresa() {
+  document.getElementById('modalDetalleEmpresa').style.display = 'none';
+  document.getElementById('formEditarEmpresa').style.display = 'none';
+  document.getElementById('btnMostrarEdicion').style.display = '';
+}
+
+let empresaIdActual = null;
+
+function mostrarEdicionEmpresa() {
+  document.getElementById('editNombre').value   = document.getElementById('detalleEmpresaNombre').textContent;
+  document.getElementById('formEditarEmpresa').style.display = 'block';
+  document.getElementById('btnMostrarEdicion').style.display = 'none';
+  document.getElementById('editError').style.display = 'none';
+}
+
+function cancelarEdicionEmpresa() {
+  document.getElementById('formEditarEmpresa').style.display = 'none';
+  document.getElementById('btnMostrarEdicion').style.display = '';
+}
+
+async function guardarEdicionEmpresa() {
+  const errorBox = document.getElementById('editError');
+  const btn = document.getElementById('btnGuardarEdicion');
+  errorBox.style.display = 'none';
+
+  const payload = {
+    nombre:   document.getElementById('editNombre').value.trim(),
+    rubro:    document.getElementById('editRubro').value.trim(),
+    tamano:   document.getElementById('editTamano').value.trim(),
+    region:   document.getElementById('editRegion').value.trim(),
+    contacto: document.getElementById('editContacto').value.trim(),
+  };
+
+  if (!payload.nombre) {
+    errorBox.textContent = 'El nombre es obligatorio.';
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  try {
+    const res = await fetch(`/api/admin/empresa/${empresaIdActual}/editar/`, {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.cookie.split('; ').find(r => r.startsWith('csrftoken=')).split('=')[1] },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!data.ok) {
+      errorBox.textContent = data.error || 'Error al guardar.';
+      errorBox.style.display = 'block';
+      return;
+    }
+
+    cancelarEdicionEmpresa();
+    await verDetalleEmpresa(empresaIdActual);
+    await cargarResumen();
+
+  } catch (e) {
+    errorBox.textContent = 'Error de conexión.';
+    errorBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Guardar cambios';
+  }
 }
 
 // Botón cerrar sesión
